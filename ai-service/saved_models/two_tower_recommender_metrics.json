@@ -1,0 +1,15 @@
+{
+  "precision_at_5": 0.01904761904761905,
+  "recall_at_5": 0.016534391534391533,
+  "ndcg_at_10": 0.026025146404717425,
+  "hit_rate_at_10": 0.23809523809523808,
+  "n_evaluated_investors": 42,
+  "candidate_pool_size": 300,
+  "assumptions": [
+    "Relevance is binary (compatibility_label == 1).",
+    "Candidate pool per investor = unique startups in the training split.",
+    "Investors without positives in the test split are skipped.",
+    "Metrics are computed on synthetic data; they do not reflect real-world performance."
+  ],
+  "synthetic_data_warning": "All metrics are computed on synthetic development data and must not be interpreted as real-world recommendation quality."
+}

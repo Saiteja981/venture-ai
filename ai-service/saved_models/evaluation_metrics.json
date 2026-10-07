@@ -1,0 +1,37 @@
+{
+  "potential_score": {
+    "mae": 4.949188635253907,
+    "rmse": 6.488754317940173,
+    "r2": 0.5458269884333234
+  },
+  "risk_category": {
+    "accuracy": 0.6444444444444445,
+    "precision_weighted": 0.6705413105413105,
+    "recall_weighted": 0.6444444444444445,
+    "f1_weighted": 0.6347148063395204,
+    "roc_auc_weighted_ovr": 0.7799191919191919,
+    "confusion_matrix": [
+      [
+        2,
+        0,
+        0
+      ],
+      [
+        2,
+        11,
+        10
+      ],
+      [
+        0,
+        4,
+        16
+      ]
+    ],
+    "class_names": [
+      "LOW",
+      "MEDIUM",
+      "HIGH"
+    ]
+  },
+  "synthetic_data_warning": "Metrics computed on synthetic development data. Not representative of real-world startup success or investment returns."
+}

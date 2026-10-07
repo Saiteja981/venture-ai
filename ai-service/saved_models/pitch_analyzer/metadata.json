@@ -1,0 +1,33 @@
+{
+  "project": "AI-Powered Venture Capital and Startup Collaboration Platform",
+  "model_name": "pitch_analyzer",
+  "backbone": "bert-base-uncased",
+  "model_class": "TFBertForSequenceClassification",
+  "tensorflow_version": "2.21.0",
+  "tf_keras_version": "2.21.0",
+  "random_seed": 42,
+  "max_seq_len": 128,
+  "batch_size": 8,
+  "learning_rate": 2e-05,
+  "epochs_run": 10,
+  "trainable_layers": 4,
+  "num_classes": 8,
+  "sections": [
+    "Problem",
+    "Solution",
+    "Market",
+    "Product",
+    "Business Model",
+    "Traction",
+    "Competition",
+    "Team"
+  ],
+  "train_samples": 315,
+  "val_samples": 68,
+  "test_samples": 68,
+  "final_train_loss": 0.12173699587583542,
+  "final_val_loss": 0.10617601126432419,
+  "final_val_accuracy": 1.0,
+  "best_val_loss": 0.10617601126432419,
+  "synthetic_data_warning": "This model was trained on synthetic development-only pitch-deck data. It must not be used to evaluate real startups or make investment decisions."
+}

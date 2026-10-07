@@ -1,0 +1,22 @@
+{
+  "label_to_idx": {
+    "Problem": 0,
+    "Solution": 1,
+    "Market": 2,
+    "Product": 3,
+    "Business Model": 4,
+    "Traction": 5,
+    "Competition": 6,
+    "Team": 7
+  },
+  "idx_to_label": {
+    "0": "Problem",
+    "1": "Solution",
+    "2": "Market",
+    "3": "Product",
+    "4": "Business Model",
+    "5": "Traction",
+    "6": "Competition",
+    "7": "Team"
+  }
+}

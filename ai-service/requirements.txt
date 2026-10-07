@@ -1,0 +1,24 @@
+fastapi
+uvicorn[standard]
+pydantic
+python-dotenv
+
+# Data & analytics (Phase 8.2)
+pandas
+numpy
+scikit-learn
+matplotlib
+seaborn
+joblib
+jupyter
+pytest
+
+# Deep learning (Phase 8.3, 8.4)
+tensorflow==2.20.0
+
+# NLP / Transformers (Phase 8.5)
+transformers==4.46.3
+huggingface-hub
+tokenizers
+safetensors
+tf-keras

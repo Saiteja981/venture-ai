@@ -1,0 +1,74 @@
+# ============================================================
+# Venture AI — root .gitignore
+# ============================================================
+
+# ---------- Secrets / local environment ----------
+.env
+.env.local
+.env.*.local
+*.local
+
+# ---------- IDE / editor ----------
+.vscode/
+.idea/
+*.iml
+*.iws
+*.ipr
+*.suo
+*.sw?
+.DS_Store
+Thumbs.db
+
+# ---------- Logs ----------
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ============================================================
+# Frontend (React + Vite)
+# ============================================================
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/.vite/
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# ============================================================
+# Backend (Spring Boot)
+# ============================================================
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+backend/src/main/resources/application.properties
+backend/.env
+
+# ============================================================
+# AI Service (Python / FastAPI)
+# ============================================================
+ai-service/.venv/
+ai-service/venv/
+ai-service/env/
+ai-service/__pycache__/
+ai-service/**/__pycache__/
+ai-service/*.py[cod]
+ai-service/.pytest_cache/
+ai-service/.mypy_cache/
+ai-service/.ruff_cache/
+ai-service/.ipynb_checkpoints/
+ai-service/.env
+ai-service/data/
+ai-service/notebooks/
+
+# Model artifacts: keep trained models and JSON metadata;
+# exclude only derived PNG plots.
+ai-service/saved_models/**/*.png
+ai-service/saved_models/**/*.csv
+
+# ============================================================
+# Docker overrides
+# ============================================================
+docker-compose.override.yml

@@ -1,0 +1,66 @@
+{
+  "project_name": "AI-Powered Venture Capital and Startup Collaboration Platform",
+  "model_name": "two_tower_recommender",
+  "tensorflow_version": "2.20.0",
+  "keras_version": "3.12.4",
+  "python_version": "3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)]",
+  "random_seed": 42,
+  "embedding_dim": 32,
+  "startup_input_dim": 36,
+  "investor_input_dim": 183,
+  "training_samples": 4200,
+  "validation_samples": 900,
+  "training_config": {
+    "max_epochs": 100,
+    "batch_size": 64,
+    "learning_rate": 0.001,
+    "optimizer": "Adam",
+    "loss": "binary_crossentropy(sigmoid(5 * dot))",
+    "custom_layers": [
+      "L2Normalize",
+      "ScaleBy"
+    ],
+    "callbacks": [
+      "EarlyStopping(patience=10, monitor=val_loss)",
+      "ReduceLROnPlateau(factor=0.5, patience=5)"
+    ]
+  },
+  "startup_feature_names": [
+    "founded_year",
+    "team_size",
+    "total_users",
+    "customer_count",
+    "monthly_revenue",
+    "revenue_growth_rate",
+    "total_funding",
+    "monthly_burn_rate",
+    "runway_months",
+    "valuation",
+    "revenue_per_customer",
+    "users_per_team_member",
+    "growth_adjusted_runway",
+    "funding_to_revenue",
+    "burn_to_revenue",
+    "industry",
+    "business_model",
+    "startup_stage"
+  ],
+  "investor_feature_names": [
+    "minimum_investment",
+    "maximum_investment",
+    "investment_experience_years",
+    "portfolio_size",
+    "investor_type",
+    "risk_preference",
+    "preferred_location",
+    "preferred_industries",
+    "preferred_stages",
+    "preferred_business_models"
+  ],
+  "compatibility_scaling": "compatibility_score_0_100 = 50 * (dot(l2norm(st_emb), l2norm(inv_emb)) + 1)",
+  "synthetic_data_warning": "This model is trained on synthetic development data. The compatibility score is a learned similarity signal and does NOT represent real investment probability, financial advice, or guaranteed investor-startup matching.",
+  "epochs_run": 21,
+  "final_train_loss": 0.3015098571777344,
+  "final_val_loss": 0.6355636119842529,
+  "best_val_loss": 0.6260072588920593
+}
