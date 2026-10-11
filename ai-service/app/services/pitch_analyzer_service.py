@@ -15,8 +15,6 @@ import re
 from pathlib import Path
 from typing import Any
 
-
-
 import numpy as np
 import tensorflow as tf
 from transformers import BertTokenizer, TFBertForSequenceClassification
@@ -51,6 +49,29 @@ GAP_MESSAGES = {
     "Team": "Founder/team background and relevant expertise are missing or insufficient.",
 }
 
+# ---------- Phase 22: strengths and suggestions ----------
+
+STRENGTH_THRESHOLD = 70.0
+
+ACTIONABLE_SUGGESTIONS = {
+    "Problem": "Describe the specific problem your startup solves and who experiences it. Avoid generic market pain.",
+    "Solution": "Explain how your product solves the problem, ideally with a concrete example or workflow.",
+    "Market": "Quantify the market — TAM/SAM/SOM or equivalent — and cite the source or assumption.",
+    "Product": "Describe what the product does, its key features, and how it is used in practice.",
+    "Business Model": "State how you make money (pricing, unit economics, revenue streams).",
+    "Traction": "Add concrete metrics — ARR/MRR, growth rate, customer count, retention, key logos.",
+    "Competition": "Name your competitors and explain your differentiation or defensibility.",
+    "Team": "List founders, relevant experience, and any prior exits or domain expertise.",
+}
+
+PRIORITY_MAP = {
+    "HIGH": "HIGH",
+    "MEDIUM": "MEDIUM",
+    "LOW": "LOW",
+}
+
+
+# ---------- module-level cached state ----------
 
 _model = None
 _tokenizer = None
@@ -182,6 +203,40 @@ def _build_information_gaps(sections: dict[str, dict[str, Any]]) -> list[dict[st
     return gaps
 
 
+# ---------- Phase 22: strength and suggestion builders ----------
+
+def _build_strengths(sections: dict[str, dict[str, Any]]) -> list[str]:
+    return [
+        s for s in REQUIRED_SECTIONS
+        if sections[s]["present"]
+        and sections[s].get("completeness", 0.0) >= STRENGTH_THRESHOLD
+    ]
+
+
+def _build_section_suggestions(sections: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+    suggestions: list[dict[str, Any]] = []
+    for s in REQUIRED_SECTIONS:
+        info = sections[s]
+        if not info["present"]:
+            priority = PRIORITY_MAP["HIGH"]
+        elif info["confidence"] < CONFIDENCE_THRESHOLD:
+            priority = PRIORITY_MAP["MEDIUM"]
+        elif info.get("completeness", 0.0) < STRENGTH_THRESHOLD:
+            priority = PRIORITY_MAP["LOW"]
+        else:
+            continue
+        suggestions.append({
+            "section": s,
+            "priority": priority,
+            "suggestion": ACTIONABLE_SUGGESTIONS[s],
+        })
+    order = {"HIGH": 0, "MEDIUM": 1, "LOW": 2}
+    suggestions.sort(key=lambda x: (order[x["priority"]], x["section"]))
+    return suggestions
+
+
+# ---------- public entry point ----------
+
 def analyze_pitch_deck(text: str) -> dict[str, Any]:
     if text is None or not isinstance(text, str) or not text.strip():
         return {
@@ -195,6 +250,12 @@ def analyze_pitch_deck(text: str) -> dict[str, Any]:
             "summary": {"detected_count": 0,
                         "missing_count": len(REQUIRED_SECTIONS),
                         "total_sections": len(REQUIRED_SECTIONS)},
+            "strengths": [],
+            "section_suggestions": [
+                {"section": s, "priority": "HIGH",
+                 "suggestion": ACTIONABLE_SUGGESTIONS[s]}
+                for s in REQUIRED_SECTIONS
+            ],
         }
 
     chunks = _split_into_chunks(text)
@@ -216,6 +277,9 @@ def analyze_pitch_deck(text: str) -> dict[str, Any]:
     detected = sum(1 for s in REQUIRED_SECTIONS if sections[s]["present"])
     missing = len(REQUIRED_SECTIONS) - detected
 
+    strengths = _build_strengths(sections)
+    section_suggestions = _build_section_suggestions(sections)
+
     return {
         "overall_completeness_score": round(overall, 2),
         "sections": {
@@ -229,4 +293,6 @@ def analyze_pitch_deck(text: str) -> dict[str, Any]:
         "information_gaps": gaps,
         "summary": {"detected_count": detected, "missing_count": missing,
                     "total_sections": len(REQUIRED_SECTIONS)},
+        "strengths": strengths,
+        "section_suggestions": section_suggestions,
     }

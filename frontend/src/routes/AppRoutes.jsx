@@ -15,9 +15,22 @@ import StartupAnalytics from "../pages/startup/Analytics.jsx";
 import InvestorInsights from "../pages/investor/Insights.jsx";
 import PlatformAnalytics from "../pages/admin/PlatformAnalytics.jsx";
 import AIAnalytics from "../pages/admin/AIAnalytics.jsx";
+import NotificationsPage from "../pages/common/Notifications.jsx";
 import ProtectedRoute from "../components/auth/ProtectedRoute.jsx";
 import DashboardLayout from "../components/layout/DashboardLayout.jsx";
 import Placeholder from "../components/layout/Placeholder.jsx";
+import Discover from "../pages/investor/Discover.jsx";
+import InvestorCollaborations from "../pages/investor/Collaborations.jsx";
+import StartupCollaborations from "../pages/startup/Collaborations.jsx";
+import Messages from "../pages/common/Messages.jsx";
+import SavedStartups from "../pages/investor/SavedStartups.jsx";
+import Portfolio from "../pages/investor/Portfolio.jsx";
+import AdminUsers from "../pages/admin/Users.jsx";
+import AuditLogs from "../pages/admin/AuditLogs.jsx";
+import InvestorMatches from "../pages/startup/InvestorMatches.jsx";
+import AiMonitoring from "../pages/admin/AiMonitoring.jsx";
+import AdminStartups from "../pages/admin/Startups.jsx";
+import AdminInvestors from "../pages/admin/Investors.jsx";
 
 function ComingSoon({ title, description }) {
     return (
@@ -62,6 +75,30 @@ export default function AppRoutes() {
                 }
             />
             <Route
+                path="/startup/collaborations"
+                element={
+                    <ProtectedRoute allowedRoles={["STARTUP"]}>
+                        <StartupCollaborations />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/startup/messages"
+                element={
+                    <ProtectedRoute allowedRoles={["STARTUP"]}>
+                        <Messages />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/startup/messages/:conversationId"
+                element={
+                    <ProtectedRoute allowedRoles={["STARTUP"]}>
+                        <Messages />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
                 path="/startup/potential"
                 element={
                     <ProtectedRoute allowedRoles={["STARTUP"]}>
@@ -89,10 +126,7 @@ export default function AppRoutes() {
                 path="/startup/matches"
                 element={
                     <ProtectedRoute allowedRoles={["STARTUP"]}>
-                        <ComingSoon
-                            title="Investor Matches"
-                            description="The recommendation model matches investors to startups. Investor-facing recommendations are available on the investor dashboard."
-                        />
+                        <InvestorMatches />
                     </ProtectedRoute>
                 }
             />
@@ -100,10 +134,7 @@ export default function AppRoutes() {
                 path="/startup/investor-matches"
                 element={
                     <ProtectedRoute allowedRoles={["STARTUP"]}>
-                        <ComingSoon
-                            title="Investor Matches"
-                            description="The recommendation model matches investors to startups. Investor-facing recommendations are available on the investor dashboard."
-                        />
+                        <InvestorMatches />
                     </ProtectedRoute>
                 }
             />
@@ -111,7 +142,7 @@ export default function AppRoutes() {
                 path="/startup/notifications"
                 element={
                     <ProtectedRoute allowedRoles={["STARTUP"]}>
-                        <ComingSoon title="Notifications" />
+                        <NotificationsPage />
                     </ProtectedRoute>
                 }
             />
@@ -145,7 +176,7 @@ export default function AppRoutes() {
                 path="/investor/discover"
                 element={
                     <ProtectedRoute allowedRoles={["INVESTOR"]}>
-                        <ComingSoon title="Discover Startups" description="Browse startups on the platform." />
+                        <Discover />
                     </ProtectedRoute>
                 }
             />
@@ -161,7 +192,15 @@ export default function AppRoutes() {
                 path="/investor/portfolio"
                 element={
                     <ProtectedRoute allowedRoles={["INVESTOR"]}>
-                        <ComingSoon title="Portfolio" description="Track your investments." />
+                        <Portfolio />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/investor/saved-startups"
+                element={
+                    <ProtectedRoute allowedRoles={["INVESTOR"]}>
+                        <SavedStartups />
                     </ProtectedRoute>
                 }
             />
@@ -174,10 +213,34 @@ export default function AppRoutes() {
                 }
             />
             <Route
+                path="/investor/collaborations"
+                element={
+                    <ProtectedRoute allowedRoles={["INVESTOR"]}>
+                        <InvestorCollaborations />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/investor/messages"
+                element={
+                    <ProtectedRoute allowedRoles={["INVESTOR"]}>
+                        <Messages />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/investor/messages/:conversationId"
+                element={
+                    <ProtectedRoute allowedRoles={["INVESTOR"]}>
+                        <Messages />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
                 path="/investor/notifications"
                 element={
                     <ProtectedRoute allowedRoles={["INVESTOR"]}>
-                        <ComingSoon title="Notifications" />
+                        <NotificationsPage />
                     </ProtectedRoute>
                 }
             />
@@ -203,7 +266,15 @@ export default function AppRoutes() {
                 path="/admin/users"
                 element={
                     <ProtectedRoute allowedRoles={["ADMIN"]}>
-                        <ComingSoon title="Users" description="Manage platform users." />
+                        <AdminUsers />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/admin/audit-logs"
+                element={
+                    <ProtectedRoute allowedRoles={["ADMIN"]}>
+                        <AuditLogs />
                     </ProtectedRoute>
                 }
             />
@@ -211,7 +282,7 @@ export default function AppRoutes() {
                 path="/admin/startups"
                 element={
                     <ProtectedRoute allowedRoles={["ADMIN"]}>
-                        <ComingSoon title="Startups" description="Manage startups." />
+                        <AdminStartups />
                     </ProtectedRoute>
                 }
             />
@@ -219,7 +290,7 @@ export default function AppRoutes() {
                 path="/admin/investors"
                 element={
                     <ProtectedRoute allowedRoles={["ADMIN"]}>
-                        <ComingSoon title="Investors" description="Manage investors." />
+                        <AdminInvestors />
                     </ProtectedRoute>
                 }
             />
@@ -228,6 +299,14 @@ export default function AppRoutes() {
                 element={
                     <ProtectedRoute allowedRoles={["ADMIN"]}>
                         <AIAnalytics />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/admin/ai-monitoring"
+                element={
+                    <ProtectedRoute allowedRoles={["ADMIN"]}>
+                        <AiMonitoring />
                     </ProtectedRoute>
                 }
             />

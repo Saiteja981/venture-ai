@@ -1,9 +1,10 @@
 package com.ventureai.backend.service;
 
 import com.ventureai.backend.dto.AdminStatsResponse;
+import com.ventureai.backend.entity.Investor;
 import com.ventureai.backend.entity.Role;
 import com.ventureai.backend.entity.Startup;
-import com.ventureai.backend.entity.Investor;
+import com.ventureai.backend.repository.AiExecutionRepository;
 import com.ventureai.backend.repository.InvestorRepository;
 import com.ventureai.backend.repository.StartupRepository;
 import com.ventureai.backend.repository.UserRepository;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -21,13 +21,16 @@ public class AdminStatsService {
     private final UserRepository userRepository;
     private final StartupRepository startupRepository;
     private final InvestorRepository investorRepository;
+    private final AiExecutionRepository aiExecutionRepository;
 
     public AdminStatsService(UserRepository userRepository,
                              StartupRepository startupRepository,
-                             InvestorRepository investorRepository) {
+                             InvestorRepository investorRepository,
+                             AiExecutionRepository aiExecutionRepository) {
         this.userRepository = userRepository;
         this.startupRepository = startupRepository;
         this.investorRepository = investorRepository;
+        this.aiExecutionRepository = aiExecutionRepository;
     }
 
     @Transactional(readOnly = true)
@@ -35,6 +38,7 @@ public class AdminStatsService {
         long totalUsers = userRepository.count();
         long totalStartups = startupRepository.count();
         long totalInvestors = investorRepository.count();
+        long totalAiExecutions = aiExecutionRepository.count();
 
         Map<String, Long> usersByRole = userRepository.findAll().stream()
                 .collect(Collectors.groupingBy(
@@ -71,6 +75,7 @@ public class AdminStatsService {
 
         return new AdminStatsResponse(
                 totalUsers, totalStartups, totalInvestors, totalAdmins,
+                totalAiExecutions,
                 usersByRole, startupsByIndustry, startupsByStage, investorsByType
         );
     }

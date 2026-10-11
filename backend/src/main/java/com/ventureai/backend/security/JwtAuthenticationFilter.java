@@ -21,9 +21,6 @@ import java.util.Optional;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final String AUTHORIZATION_HEADER = "Authorization";
-    private static final String BEARER_PREFIX = "Bearer ";
-
     private final JwtService jwtService;
     private final UserRepository userRepository;
 
@@ -38,44 +35,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     @NonNull FilterChain filterChain)
             throws ServletException, IOException {
 
-        final String authHeader = request.getHeader(AUTHORIZATION_HEADER);
+        String header = request.getHeader("Authorization");
 
-        if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
+        if (header == null || !header.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        final String token = authHeader.substring(BEARER_PREFIX.length());
+        String token = header.substring(7);
 
         try {
-            final String email = jwtService.extractEmail(token);
+            if (jwtService.isTokenValid(token)) {
+                String email = jwtService.extractEmail(token);
+                Optional<User> userOpt = userRepository.findByEmail(email);
 
-            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                Optional<User> userOptional = userRepository.findByEmail(email);
-
-                if (userOptional.isPresent()) {
-                    User user = userOptional.get();
-
-                    if (user.isEnabled() && jwtService.isTokenValid(token, email)) {
-                        String authority = "ROLE_" + user.getRole().name();
-
-                        UsernamePasswordAuthenticationToken authentication =
-                                new UsernamePasswordAuthenticationToken(
-                                        email,
-                                        null,
-                                        List.of(new SimpleGrantedAuthority(authority))
-                                );
-
-                        authentication.setDetails(
-                                new WebAuthenticationDetailsSource().buildDetails(request)
-                        );
-
-                        SecurityContextHolder.getContext().setAuthentication(authentication);
-                    }
+                if (userOpt.isPresent() && userOpt.get().isEnabled()) {
+                    User user = userOpt.get();
+                    var authority = new SimpleGrantedAuthority("ROLE_" + user.getRole().name());
+                    var authentication = new UsernamePasswordAuthenticationToken(
+                            user.getEmail(), null, List.of(authority));
+                    authentication.setDetails(
+                            new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             }
-        } catch (Exception ex) {
-            SecurityContextHolder.clearContext();
+        } catch (Exception ignored) {
+            // Invalid token — leave SecurityContext empty; request will be treated as anonymous.
         }
 
         filterChain.doFilter(request, response);

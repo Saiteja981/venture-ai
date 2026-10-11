@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import traceback
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Query, status
 
 from app.schemas.prediction import StartupFeatures, StartupPredictionResponse
 from app.services import startup_prediction_service
@@ -20,9 +20,16 @@ router = APIRouter(prefix="/api/v1/predict", tags=["prediction"])
         503: {"description": "Model unavailable"},
     },
 )
-def predict_startup_endpoint(features: StartupFeatures) -> StartupPredictionResponse:
+def predict_startup_endpoint(
+    features: StartupFeatures,
+    explain: bool = Query(
+        False,
+        description="When true, include an approximate per-feature explanation. "
+                    "Adds latency proportional to the number of input features.",
+    ),
+) -> StartupPredictionResponse:
     try:
-        result = startup_prediction_service.predict(features)
+        result = startup_prediction_service.predict(features, explain=explain)
     except startup_prediction_service.StartupPredictionUnavailable as exc:
         traceback.print_exc()
         raise HTTPException(

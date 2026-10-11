@@ -9,14 +9,68 @@ import AIPageHeader from "../../components/ai/AIPageHeader.jsx";
 import AILoadingState from "../../components/ai/AILoadingState.jsx";
 import AIErrorState from "../../components/ai/AIErrorState.jsx";
 import RecommendationCard from "../../components/ai/RecommendationCard.jsx";
+import FeedbackControl from "../../components/ai/FeedbackControl.jsx";
 import { useToast } from "../../hooks/useToast.js";
 import { getMyInvestorProfile } from "../../services/investor/investorService.js";
 import { getRecommendations } from "../../services/api/aiApi.js";
+import { reportAiEvent } from "../../services/notification/notificationService.js";
 import { messageForError } from "../../utils/errorHandler.js";
-import { Sparkles, UserCircle2 } from "lucide-react";
+import { Sparkles, UserCircle2, CheckCircle2, XCircle } from "lucide-react";
 
 const NOT_FOUND = 404;
 const TOP_K = 5;
+
+const CRITERION_LABELS = {
+    industry: "Industry",
+    startup_stage: "Stage",
+    business_model: "Business model",
+};
+
+function DirectMatchPanel({ matches }) {
+    if (!matches || matches.length === 0) return null;
+    return (
+        <Card className="!p-4">
+            <h4 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Preference matches (rule-based)
+            </h4>
+            <ul className="mt-3 space-y-2">
+                {matches.map((m) => (
+                    <li
+                        key={m.criterion}
+                        className="flex items-start justify-between gap-3 text-xs"
+                    >
+                        <div className="min-w-0">
+                            <span className="font-medium text-navy-800">
+                                {CRITERION_LABELS[m.criterion] ?? m.criterion}
+                            </span>
+                            <span className="ml-2 text-slate-500">
+                                {m.startup_value ?? "—"}
+                            </span>
+                            {m.note && (
+                                <span className="ml-2 text-[10px] italic text-slate-400">
+                                    {m.note}
+                                </span>
+                            )}
+                        </div>
+                        {m.matched ? (
+                            <span className="inline-flex flex-shrink-0 items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
+                                <CheckCircle2 className="h-3 w-3" /> matched
+                            </span>
+                        ) : (
+                            <span className="inline-flex flex-shrink-0 items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500">
+                                <XCircle className="h-3 w-3" /> no match
+                            </span>
+                        )}
+                    </li>
+                ))}
+            </ul>
+            <p className="mt-3 border-t border-slate-100 pt-2 text-[10px] text-slate-400">
+                Rule-based comparison with your stated preferences — independent of the
+                learned compatibility score above.
+            </p>
+        </Card>
+    );
+}
 
 export default function Recommended() {
     const toast = useToast();
@@ -68,8 +122,9 @@ export default function Recommended() {
                         : null,
                 preferred_location: profile.preferredLocation ?? null,
             };
-            const result = await getRecommendations(payload, TOP_K);
+            const result = await getRecommendations(payload, TOP_K, true);
             setRecs(result);
+            reportAiEvent("RECOMMENDATIONS_LOADED");
         } catch (err) {
             const msg =
                 err?.isNetworkError || err?.isTimeout
@@ -183,12 +238,19 @@ export default function Recommended() {
                                             </p>
                                         </Card>
 
-                                        <div className="space-y-3">
+                                        {/* Phase 24: feedback for this recommendation run */}
+                                        <FeedbackControl executionId={recs._execution?.id} />
+
+                                        <div className="space-y-4">
                                             {recs.recommendations.map((rec) => (
-                                                <RecommendationCard
-                                                    key={rec.startup_id}
-                                                    recommendation={rec}
-                                                />
+                                                <div key={rec.startup_id} className="space-y-2">
+                                                    <RecommendationCard
+                                                        recommendation={rec}
+                                                    />
+                                                    <DirectMatchPanel
+                                                        matches={rec.direct_matches}
+                                                    />
+                                                </div>
                                             ))}
                                         </div>
                                     </>
@@ -202,6 +264,11 @@ export default function Recommended() {
                                         {recs.disclaimer ||
                                             "Recommendations are produced by a model trained on synthetic development data and do not represent real investment guidance."}
                                     </p>
+                                    {recs.explanation_note && (
+                                        <p className="mt-3 border-t border-slate-100 pt-3 text-xs text-slate-500">
+                                            {recs.explanation_note}
+                                        </p>
+                                    )}
                                 </Card>
                             </>
                         )}

@@ -9,6 +9,12 @@ from app.services.pitch_analyzer_service import analyze_pitch_deck
 
 router = APIRouter(prefix="/api/v1/analyze", tags=["pitch-analysis"])
 
+_EXPLANATION_NOTE = (
+    "Strengths and suggestions are derived from the classifier's detected "
+    "sections and completeness estimates. They reflect what the text "
+    "contains, not verified business facts or an investment recommendation."
+)
+
 
 @router.post(
     "/pitch-deck",
@@ -34,4 +40,7 @@ def analyze_pitch_deck_endpoint(request: PitchDeckRequest) -> PitchDeckResponse:
         sections=result["sections"],
         information_gaps=result["information_gaps"],
         summary=result["summary"],
+        strengths=result.get("strengths"),
+        section_suggestions=result.get("section_suggestions"),
+        explanation_note=_EXPLANATION_NOTE,
     )

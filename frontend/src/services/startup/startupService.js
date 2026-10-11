@@ -23,3 +23,14 @@ export async function updateStartup(id, payload) {
 export async function deleteStartup(id) {
     await axiosClient.delete(`/startups/${id}`);
 }
+export async function discoverStartups(params = {}) {
+    const query = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "") {
+            query.append(key, value);
+        }
+    });
+    const qs = query.toString();
+    const { data } = await axiosClient.get(`/startups/discover${qs ? "?" + qs : ""}`);
+    return data;
+}

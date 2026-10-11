@@ -191,14 +191,12 @@ export default function AIAnalytics() {
                             <h3 className="text-base font-semibold text-navy-800">
                                 Pitch Analyzer — Section Labels
                             </h3>
-                            <div className="mt-3 flex flex-wrap gap-2">
-                                {Object.entries(info.pitch_analyzer.labels).map(
-                                    ([key, label]) => (
-                                        <Badge key={key} tone="navy">
-                                            {key}: {String(label)}
-                                        </Badge>
-                                    )
-                                )}
+                            <p className="mt-1 text-xs text-slate-500">
+                                Bidirectional mapping between section names and their
+                                classifier indices.
+                            </p>
+                            <div className="mt-4">
+                                <MetricTable obj={info.pitch_analyzer.labels} />
                             </div>
                         </Card>
                     )}

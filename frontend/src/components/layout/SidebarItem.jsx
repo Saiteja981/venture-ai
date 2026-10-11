@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 
-export default function SidebarItem({ label, path, icon: Icon }) {
+export default function SidebarItem({ label, path, icon: Icon, badge }) {
     return (
         <NavLink
             to={path}
@@ -21,7 +21,18 @@ export default function SidebarItem({ label, path, icon: Icon }) {
                             }`}
                         />
                     )}
-                    <span className="truncate">{label}</span>
+                    <span className="truncate flex-1">{label}</span>
+                    {badge > 0 && (
+                        <span
+                            className={`inline-flex items-center justify-center rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
+                                isActive
+                                    ? "bg-white text-brand-600"
+                                    : "bg-brand-600 text-white"
+                            }`}
+                        >
+              {badge > 99 ? "99+" : badge}
+            </span>
+                    )}
                 </>
             )}
         </NavLink>

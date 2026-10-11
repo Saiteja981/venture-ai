@@ -1,13 +1,14 @@
 import { navigationForRole } from "../../config/navigation.js";
 import SidebarItem from "./SidebarItem.jsx";
 import UserMenu from "./UserMenu.jsx";
+import { useNotificationContext } from "../../context/NotificationContext.jsx";
 
 export default function Sidebar({ role, onNavigate }) {
     const sections = navigationForRole(role);
+    const { unreadCount } = useNotificationContext();
 
     return (
         <aside className="flex h-full w-64 flex-col bg-navy-800 text-white">
-            {/* Brand */}
             <div className="flex items-center gap-3 border-b border-white/10 px-5 py-5">
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white font-bold">
                     V
@@ -18,7 +19,6 @@ export default function Sidebar({ role, onNavigate }) {
                 </div>
             </div>
 
-            {/* Nav */}
             <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-5">
                 {sections.map((section) => (
                     <div key={section.section}>
@@ -26,21 +26,25 @@ export default function Sidebar({ role, onNavigate }) {
                             {section.section}
                         </div>
                         <div className="space-y-1">
-                            {section.items.map((item) => (
-                                <div key={item.path} onClick={onNavigate}>
-                                    <SidebarItem
-                                        label={item.label}
-                                        path={item.path}
-                                        icon={item.icon}
-                                    />
-                                </div>
-                            ))}
+                            {section.items.map((item) => {
+                                const badge =
+                                    item.badgeKey === "unreadNotifications" ? unreadCount : 0;
+                                return (
+                                    <div key={item.path} onClick={onNavigate}>
+                                        <SidebarItem
+                                            label={item.label}
+                                            path={item.path}
+                                            icon={item.icon}
+                                            badge={badge}
+                                        />
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 ))}
             </nav>
 
-            {/* User menu */}
             <div className="border-t border-white/10 p-3">
                 <UserMenu />
             </div>

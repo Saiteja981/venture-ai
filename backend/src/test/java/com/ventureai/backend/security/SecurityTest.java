@@ -5,8 +5,10 @@ import com.ventureai.backend.dto.LoginRequest;
 import com.ventureai.backend.dto.RegisterRequest;
 import com.ventureai.backend.entity.Role;
 import com.ventureai.backend.repository.InvestorRepository;
+import com.ventureai.backend.repository.NotificationRepository;
 import com.ventureai.backend.repository.StartupRepository;
 import com.ventureai.backend.repository.UserRepository;
+import com.ventureai.backend.repository.CollaborationRequestRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import com.ventureai.backend.repository.ConversationRepository;
+import com.ventureai.backend.repository.MessageRepository;
+import com.ventureai.backend.repository.SavedStartupRepository;
+import com.ventureai.backend.repository.AiExecutionRepository;
+import com.ventureai.backend.repository.AiFeedbackRepository;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -31,15 +38,28 @@ class SecurityTest {
     @Autowired private ObjectMapper json;
     @Autowired private UserRepository userRepository;
     @Autowired private StartupRepository startupRepository;
+    @Autowired private CollaborationRequestRepository collaborationRepository;
+    @Autowired private MessageRepository messageRepository;
+    @Autowired private SavedStartupRepository savedStartupRepository;
+    @Autowired private ConversationRepository conversationRepository;
     @Autowired private InvestorRepository investorRepository;
+    @Autowired private NotificationRepository notificationRepository;
+    @Autowired private AiFeedbackRepository aiFeedbackRepository;
+    @Autowired private AiExecutionRepository aiExecutionRepository;
 
     @BeforeEach
     void clean() {
+        aiFeedbackRepository.deleteAll();
+        aiExecutionRepository.deleteAll();
+        savedStartupRepository.deleteAll();
+        messageRepository.deleteAll();
+        conversationRepository.deleteAll();
+        collaborationRepository.deleteAll();
+        notificationRepository.deleteAll();
         startupRepository.deleteAll();
         investorRepository.deleteAll();
         userRepository.deleteAll();
     }
-
     // ---------------------------------------------------------------
     // Helpers
     // ---------------------------------------------------------------
@@ -133,7 +153,6 @@ class SecurityTest {
 
     @Test
     void expiredJwtRejected() throws Exception {
-        // A syntactically valid but tampered token — signature check fails
         String bad = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmYWtlQHRlc3QuY29tIiwiZXhwIjoxfQ.aaaa";
         mvc.perform(get("/api/startups/my")
                         .header("Authorization", "Bearer " + bad))
@@ -184,7 +203,6 @@ class SecurityTest {
     @Test
     void investorCanAccessInvestorOperations() throws Exception {
         String token = registerUser("Bob", "bob@test.com", "Password123", Role.INVESTOR);
-        // 404 because the profile does not exist yet
         mvc.perform(get("/api/investors/me")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isNotFound());
@@ -209,8 +227,6 @@ class SecurityTest {
     @Test
     void startupCannotAccessAdminEndpoints() throws Exception {
         String token = registerUser("Alice", "alice@test.com", "Password123", Role.STARTUP);
-        // The /api/admin/** path is protected by hasRole('ADMIN').
-        // No handler exists, so Spring returns 403 (authorization) before 404 (routing).
         mvc.perform(get("/api/admin/anything")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isForbidden());
@@ -230,7 +246,6 @@ class SecurityTest {
 
     @Test
     void registerIsPublic() throws Exception {
-        // no token, invalid body — 400 (validation), not 401
         mvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
@@ -239,7 +254,6 @@ class SecurityTest {
 
     @Test
     void loginIsPublic() throws Exception {
-        // no token, invalid body — 400 (validation), not 401
         mvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
@@ -271,7 +285,6 @@ class SecurityTest {
         long aliceStartupId = json.readTree(res.getResponse().getContentAsString())
                 .get("id").asLong();
 
-        // Bob tries to fetch Alice's startup — 404 (not found or not owned)
         mvc.perform(get("/api/startups/" + aliceStartupId)
                         .header("Authorization", "Bearer " + bobToken))
                 .andExpect(status().isNotFound());
