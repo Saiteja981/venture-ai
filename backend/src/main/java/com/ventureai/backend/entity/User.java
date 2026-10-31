@@ -18,6 +18,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import com.ventureai.backend.entity.AuthProvider;
 @Entity
 @Table(
         name = "users",
@@ -53,11 +54,47 @@ public class User {
     @Builder.Default
     private boolean enabled = true;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "auth_provider", nullable = false, length = 20,
+            columnDefinition = "VARCHAR(20) NOT NULL DEFAULT 'LOCAL'")
+    @Builder.Default
+    private AuthProvider authProvider = AuthProvider.LOCAL;
+
+    /**
+     * Google's "sub" claim — a stable, unique identifier per Google account.
+     * Null for local accounts. Never expose this in responses.
+     */
+    @Column(name = "provider_subject", length = 128)
+    private String providerSubject;
+
+    @Column(name = "notify_collab", nullable = false,
+            columnDefinition = "BOOLEAN NOT NULL DEFAULT TRUE")
+    @Builder.Default
+    private boolean notifyCollab = true;
+
+    @Column(name = "notify_messages", nullable = false,
+            columnDefinition = "BOOLEAN NOT NULL DEFAULT TRUE")
+    @Builder.Default
+    private boolean notifyMessages = true;
+
+    @Column(name = "notify_ai_events", nullable = false,
+            columnDefinition = "BOOLEAN NOT NULL DEFAULT TRUE")
+    @Builder.Default
+    private boolean notifyAiEvents = true;
+
+    @Column(name = "notify_updates", nullable = false,
+            columnDefinition = "BOOLEAN NOT NULL DEFAULT TRUE")
+    @Builder.Default
+    private boolean notifyUpdates = true;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    @Column(name = "recommendations_per_page")
+    private Integer recommendationsPerPage;
 
     @PrePersist
     protected void onCreate() {

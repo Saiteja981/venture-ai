@@ -8,7 +8,11 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
-data/
+
+data/raw/
+data/interim/
+data/processed/*.csv
+
 notebooks/
 saved_models/**/*.png
 saved_models/**/test_split.csv

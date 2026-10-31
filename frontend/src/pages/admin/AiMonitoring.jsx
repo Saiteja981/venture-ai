@@ -7,8 +7,14 @@ import Button from "../../components/common/Button.jsx";
 import LoadingState from "../../components/common/LoadingState.jsx";
 import ErrorState from "../../components/common/ErrorState.jsx";
 import EmptyState from "../../components/common/EmptyState.jsx";
+import ExportCard from "../../components/reports/ExportCard.jsx";
 import axiosClient from "../../services/api/axiosClient.js";
 import { messageForError } from "../../utils/errorHandler.js";
+import {
+    downloadAdminAnalytics,
+    downloadAdminAuditLogs,
+    downloadAdminAiExecutions,
+} from "../../services/reports/reportService.js";
 import {
     Activity, CheckCircle2, XCircle, AlertTriangle,
     MessageSquare, Star, BarChart3, RefreshCw,
@@ -89,6 +95,26 @@ export default function AiMonitoring() {
                         </Button>
                     }
                 />
+
+                {/* Phase 27: Reports & Export */}
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                    <ExportCard
+                        title="Platform Analytics"
+                        description="User, startup, and investor totals with distributions."
+                        onExport={downloadAdminAnalytics}
+                    />
+                    <ExportCard
+                        title="AI Execution Summary"
+                        description="Operational counts and latency aggregates."
+                        onExport={downloadAdminAiExecutions}
+                    />
+                    <ExportCard
+                        title="Audit Logs"
+                        description="Administrative action history. CSV only due to volume."
+                        onExport={downloadAdminAuditLogs}
+                        formats={["csv"]}
+                    />
+                </div>
 
                 {loading ? (
                     <LoadingState message="Loading AI monitoring data…" />

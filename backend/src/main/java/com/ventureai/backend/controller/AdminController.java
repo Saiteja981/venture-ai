@@ -9,9 +9,16 @@ import com.ventureai.backend.service.AdminStartupService;
 import com.ventureai.backend.service.AdminStatsService;
 import com.ventureai.backend.service.AdminUserService;
 import com.ventureai.backend.service.AuditLogService;
+import com.ventureai.backend.service.reports.AdminReportService;
+import com.ventureai.backend.service.reports.ReportDownload;
 import jakarta.validation.Valid;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -24,19 +31,22 @@ public class AdminController {
     private final AdminAiMonitoringService adminAiMonitoringService;
     private final AdminStartupService adminStartupService;
     private final AdminInvestorService adminInvestorService;
+    private final AdminReportService adminReportService;
 
     public AdminController(AdminStatsService adminStatsService,
                            AdminUserService adminUserService,
                            AuditLogService auditLogService,
                            AdminAiMonitoringService adminAiMonitoringService,
                            AdminStartupService adminStartupService,
-                           AdminInvestorService adminInvestorService) {
+                           AdminInvestorService adminInvestorService,
+                           AdminReportService adminReportService) {
         this.adminStatsService = adminStatsService;
         this.adminUserService = adminUserService;
         this.auditLogService = auditLogService;
         this.adminAiMonitoringService = adminAiMonitoringService;
         this.adminStartupService = adminStartupService;
         this.adminInvestorService = adminInvestorService;
+        this.adminReportService = adminReportService;
     }
 
     @GetMapping("/stats")
@@ -120,5 +130,38 @@ public class AdminController {
     public AdminAiMonitoringResponse getAiMonitoring(
             @RequestParam(defaultValue = "14") int trendDays) {
         return adminAiMonitoringService.getMonitoring(trendDays);
+    }
+
+    /* ---------- Reports (Phase 27) ---------- */
+
+    @GetMapping("/reports/analytics")
+    public ResponseEntity<byte[]> exportAnalytics(
+            @RequestParam(defaultValue = "pdf") String format) {
+        return buildDownload(adminReportService.analytics(format));
+    }
+
+    @GetMapping("/reports/audit-logs")
+    public ResponseEntity<byte[]> exportAuditLogs(
+            @RequestParam(defaultValue = "csv") String format,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to) {
+        return buildDownload(adminReportService.auditLogs(format, from, to));
+    }
+
+    @GetMapping("/reports/ai-executions")
+    public ResponseEntity<byte[]> exportAiExecutions(
+            @RequestParam(defaultValue = "pdf") String format) {
+        return buildDownload(adminReportService.aiExecutionSummary(format));
+    }
+
+    private ResponseEntity<byte[]> buildDownload(ReportDownload report) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(report.mediaType());
+        headers.set(HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=\"" + report.filename() + "\"");
+        headers.setContentLength(report.bytes().length);
+        return ResponseEntity.ok().headers(headers).body(report.bytes());
     }
 }

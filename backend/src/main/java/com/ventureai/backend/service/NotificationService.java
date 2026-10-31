@@ -19,11 +19,14 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
+    private final UserPreferencesService userPreferencesService;
 
     public NotificationService(NotificationRepository notificationRepository,
-                               UserRepository userRepository) {
+                               UserRepository userRepository,
+                               UserPreferencesService userPreferencesService) {
         this.notificationRepository = notificationRepository;
         this.userRepository = userRepository;
+        this.userPreferencesService = userPreferencesService;
     }
 
     /* ---------- Current user resolution ---------- */
@@ -42,8 +45,14 @@ public class NotificationService {
 
     /**
      * Create a notification for a specific user.
-     * This method is public so future modules (collaboration, messaging, admin actions)
-     * can trigger notifications without duplicating logic.
+     *
+     * Phase 26: respects the recipient's notification preferences. When the
+     * recipient has disabled the preference category that corresponds to
+     * {@code type}, no row is persisted and this method returns {@code null}.
+     *
+     * Callers that ignore the return value (e.g. CollaborationService,
+     * MessagingService) are unaffected. The NotificationController handles
+     * the null case by returning 204 No Content.
      */
     @Transactional
     public NotificationResponse createNotification(User recipient,
@@ -52,6 +61,13 @@ public class NotificationService {
                                                    NotificationType type,
                                                    String relatedEntityType,
                                                    Long relatedEntityId) {
+        if (recipient == null) {
+            return null;
+        }
+        if (!userPreferencesService.shouldDeliver(recipient.getId(), type)) {
+            return null;
+        }
+
         Notification n = Notification.builder()
                 .user(recipient)
                 .title(title)
@@ -114,6 +130,11 @@ public class NotificationService {
 
     /* ---------- Enumerated AI-event notifications ---------- */
 
+    /**
+     * Records a notification for the current user based on an AI event type.
+     * Returns null when the user has disabled AI event notifications — the
+     * caller (NotificationController) translates that into 204 No Content.
+     */
     @Transactional
     public NotificationResponse recordAiEvent(String eventTypeName) {
         User user = currentUser();

@@ -4,8 +4,23 @@ export function messageForError(err) {
     switch (err.status) {
         case 400:
             return err.message || "Invalid input. Please check the form.";
-        case 401:
-            return "Your session is invalid or has expired. Please log in again.";
+        case 401: {
+            // The backend returns specific messages for real failures
+            // (e.g. "Invalid email or password" from /api/auth/login) and
+            // generic sentinels for session-expiry cases ("Authentication
+            // required" from the SecurityConfig entry point). Only fall back
+            // to the friendly expired-session text when the server message
+            // is missing or is one of those sentinels.
+            const serverMessage = err.message;
+            const isGenericSentinel =
+                !serverMessage ||
+                serverMessage === "Something went wrong" ||
+                serverMessage === "Authentication required" ||
+                serverMessage === "Unauthorized";
+            return isGenericSentinel
+                ? "Your session is invalid or has expired. Please log in again."
+                : serverMessage;
+        }
         case 403:
             return "You are not authorized to perform this action.";
         case 404:

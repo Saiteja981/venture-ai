@@ -14,6 +14,8 @@ import java.util.List;
 public interface AiExecutionRepository extends JpaRepository<AiExecution, Long>,
         JpaSpecificationExecutor<AiExecution> {
 
+    List<AiExecution> findByUserIdOrderByCreatedAtDesc(Long userId);
+
     long countByOutcome(AiExecutionOutcome outcome);
 
     long countByTask(AiTaskType task);
@@ -36,10 +38,6 @@ public interface AiExecutionRepository extends JpaRepository<AiExecution, Long>,
             "WHERE e.errorCategory IS NOT NULL GROUP BY e.errorCategory ORDER BY COUNT(e) DESC")
     List<Object[]> countGroupedByErrorCategory();
 
-    /**
-     * Bounded trend-window query. Callers pass a `since` timestamp computed
-     * from a capped look-back window (max 90 days in AdminAiMonitoringService).
-     */
     @Query("SELECT e FROM AiExecution e WHERE e.createdAt >= :since ORDER BY e.createdAt ASC")
     List<AiExecution> findAllSince(@Param("since") LocalDateTime since);
 }

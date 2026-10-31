@@ -3,6 +3,7 @@ import Landing from "../pages/Landing.jsx";
 import Unauthorized from "../pages/Unauthorized.jsx";
 import Login from "../pages/auth/Login.jsx";
 import Register from "../pages/auth/Register.jsx";
+import GoogleRolePrompt from "../pages/auth/GoogleRolePrompt.jsx";
 import StartupDashboard from "../pages/startup/Dashboard.jsx";
 import InvestorDashboard from "../pages/investor/Dashboard.jsx";
 import AdminDashboard from "../pages/admin/Dashboard.jsx";
@@ -31,6 +32,7 @@ import InvestorMatches from "../pages/startup/InvestorMatches.jsx";
 import AiMonitoring from "../pages/admin/AiMonitoring.jsx";
 import AdminStartups from "../pages/admin/Startups.jsx";
 import AdminInvestors from "../pages/admin/Investors.jsx";
+import Settings from "../pages/common/Settings.jsx";
 
 function ComingSoon({ title, description }) {
     return (
@@ -48,6 +50,7 @@ export default function AppRoutes() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/unauthorized" element={<Unauthorized />} />
+            <Route path="/auth/google/complete" element={<GoogleRolePrompt />} />
 
             {/* Startup */}
             <Route
@@ -150,7 +153,7 @@ export default function AppRoutes() {
                 path="/startup/settings"
                 element={
                     <ProtectedRoute allowedRoles={["STARTUP"]}>
-                        <ComingSoon title="Settings" />
+                        <Settings />
                     </ProtectedRoute>
                 }
             />
@@ -248,7 +251,7 @@ export default function AppRoutes() {
                 path="/investor/settings"
                 element={
                     <ProtectedRoute allowedRoles={["INVESTOR"]}>
-                        <ComingSoon title="Settings" />
+                        <Settings />
                     </ProtectedRoute>
                 }
             />
@@ -322,7 +325,7 @@ export default function AppRoutes() {
                 path="/admin/settings"
                 element={
                     <ProtectedRoute allowedRoles={["ADMIN"]}>
-                        <ComingSoon title="Settings" />
+                        <Settings />
                     </ProtectedRoute>
                 }
             />

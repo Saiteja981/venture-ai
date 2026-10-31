@@ -21,6 +21,7 @@ RUN pip install --no-cache-dir --upgrade pip \
 
 COPY app/ ./app/
 COPY training/ ./training/
+COPY data/ ./data/
 COPY conftest.py ./
 
 COPY saved_models/ ./saved_models/

@@ -13,12 +13,13 @@ import FeedbackControl from "../../components/ai/FeedbackControl.jsx";
 import { useToast } from "../../hooks/useToast.js";
 import { getMyInvestorProfile } from "../../services/investor/investorService.js";
 import { getRecommendations } from "../../services/api/aiApi.js";
+import { getPreferences } from "../../services/settings/settingsService.js";
 import { reportAiEvent } from "../../services/notification/notificationService.js";
 import { messageForError } from "../../utils/errorHandler.js";
 import { Sparkles, UserCircle2, CheckCircle2, XCircle } from "lucide-react";
 
 const NOT_FOUND = 404;
-const TOP_K = 5;
+const DEFAULT_TOP_K = 5;
 
 const CRITERION_LABELS = {
     industry: "Industry",
@@ -81,6 +82,7 @@ export default function Recommended() {
     const [loadingRecs, setLoadingRecs] = useState(false);
     const [recs, setRecs] = useState(null);
     const [recError, setRecError] = useState("");
+    const [topK, setTopK] = useState(DEFAULT_TOP_K);
 
     useEffect(() => {
         let cancelled = false;
@@ -99,6 +101,24 @@ export default function Recommended() {
         return () => {
             cancelled = true;
         };
+    }, []);
+
+    // Phase 26: read the investor's recommendation-display preference.
+    // Falls back to DEFAULT_TOP_K when unset or if the call fails.
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            try {
+                const prefs = await getPreferences();
+                if (cancelled) return;
+                if (prefs?.recommendationsPerPage) {
+                    setTopK(prefs.recommendationsPerPage);
+                }
+            } catch {
+                // Non-critical: fall back to the default of 5.
+            }
+        })();
+        return () => { cancelled = true; };
     }, []);
 
     async function handleFind() {
@@ -122,7 +142,7 @@ export default function Recommended() {
                         : null,
                 preferred_location: profile.preferredLocation ?? null,
             };
-            const result = await getRecommendations(payload, TOP_K, true);
+            const result = await getRecommendations(payload, topK, true);
             setRecs(result);
             reportAiEvent("RECOMMENDATIONS_LOADED");
         } catch (err) {
@@ -238,7 +258,6 @@ export default function Recommended() {
                                             </p>
                                         </Card>
 
-                                        {/* Phase 24: feedback for this recommendation run */}
                                         <FeedbackControl executionId={recs._execution?.id} />
 
                                         <div className="space-y-4">

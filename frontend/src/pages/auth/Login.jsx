@@ -3,6 +3,7 @@ import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import AppLayout from "../../components/layout/AppLayout.jsx";
 import Button from "../../components/common/Button.jsx";
 import ErrorMessage from "../../components/common/ErrorMessage.jsx";
+import GoogleSignInButton from "../../components/auth/GoogleSignInButton.jsx";
 import { loginRequest } from "../../services/auth/authService.js";
 import { useAuth } from "../../hooks/useAuth.js";
 import { messageForError } from "../../utils/errorHandler.js";
@@ -55,11 +56,16 @@ export default function Login() {
             <div className="mx-auto max-w-md py-12">
                 <div className="card">
                     <h1 className="text-2xl font-bold">Welcome back</h1>
-                    <p className="mt-1 text-sm text-slate-600">Sign in to your Venture AI account.</p>
+                    <p className="mt-1 text-sm text-slate-600">
+                        Sign in to your Venture AI account.
+                    </p>
 
                     <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-slate-700">
+                            <label
+                                htmlFor="email"
+                                className="block text-sm font-medium text-slate-700"
+                            >
                                 Email
                             </label>
                             <input
@@ -75,7 +81,10 @@ export default function Login() {
                         </div>
 
                         <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-slate-700">
+                            <label
+                                htmlFor="password"
+                                className="block text-sm font-medium text-slate-700"
+                            >
                                 Password
                             </label>
                             <input
@@ -97,9 +106,23 @@ export default function Login() {
                         </Button>
                     </form>
 
+                    {/* Phase 27: Google sign-in */}
+                    <div className="my-6 flex items-center gap-3">
+                        <div className="h-px flex-1 bg-slate-200" />
+                        <span className="text-xs uppercase tracking-wide text-slate-400">
+                            or
+                        </span>
+                        <div className="h-px flex-1 bg-slate-200" />
+                    </div>
+
+                    <GoogleSignInButton />
+
                     <p className="mt-6 text-center text-sm text-slate-600">
                         Don&apos;t have an account?{" "}
-                        <Link to="/register" className="font-medium text-brand-600 hover:text-brand-700">
+                        <Link
+                            to="/register"
+                            className="font-medium text-brand-600 hover:text-brand-700"
+                        >
                             Create one
                         </Link>
                     </p>

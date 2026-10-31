@@ -16,3 +16,5 @@ server.port=8080
 # JWT
 jwt.secret=YOUR_JWT_SECRET_BASE64
 jwt.expiration=86400000
+
+google.oauth.client-id=1066291433751-04td0p2hibpkkas711iqbnranu6okqlj.apps.googleusercontent.com
